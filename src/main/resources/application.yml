@@ -1,0 +1,59 @@
+#Customized parameters that could be overridden in the profile
+customized:
+  application-name: api-springcloud-aws
+  aws:
+    prefix: ${AWS_PREFIX:}
+    region: ${AWS_REGION:eu-west-1}
+    account: ${AWS_ACCOUNT_ID}
+    accessKey: "ACCESSKEY"
+    secretAccessKey: "SECRETACCESSKEY"
+    sqs:
+      endpoint: "http://localhost:4516"
+      subscriptions:
+        new-user-registered : "${customized.aws.prefix}new-user-registered-event"
+        new-s3-file: "${customized.aws.prefix}test-s3-bucket-event"
+      publishers:
+        new-user-registered : "${customized.aws.prefix}new-user-registered-event"
+
+    s3:
+      endpoint: "http://localhost:4516"
+      # Whether we create a backup file or not
+      use-backup: true
+      buckets:
+        new-file-uploaded: "${customized.aws.prefix}test-s3-bucket"
+
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    log-resolved-exception: true
+
+  application:
+    name: ${customized.application-name}
+  cloud:
+    #https://docs.awspring.io/spring-cloud-aws/docs/3.0.1/reference/html/appendix.html
+    #However we are configuring all in the classes
+    aws:
+      region:
+        static: eu-west-1
+
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0 # All traces should be sent to latency analysis tool
+
+
+
+
+server:
+  port: 8001
+  servlet:
+    contextPath: "/${customized.application-name}"
+  error:
+    include-message: always
+    include-exception: true
+    include-stacktrace: always
+  max-http-request-header-size: 40KB
+
